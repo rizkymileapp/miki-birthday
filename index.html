@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Miki Birthday</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap');
+
+    html, body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      scroll-behavior: smooth;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #ffdee9 0%, #b5fffc 100%);
+      overflow-x: hidden;
+      position: relative;
+      color: #374151; /* Tailwind gray-700 neutral text */
+    }
+    /* Confetti decorative circles in background */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -50px;
+      left: 50%;
+      width: 200vw;
+      height: 200vh;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255 255 255 / 0.15) 10px, transparent 11px),
+        radial-gradient(circle at 70% 40%, rgba(255 255 255 / 0.15) 15px, transparent 16px),
+        radial-gradient(circle at 20% 70%, rgba(255 255 255 / 0.12) 8px, transparent 9px),
+        radial-gradient(circle at 80% 80%, rgba(255 255 255 / 0.1) 12px, transparent 13px);
+      background-repeat: repeat;
+      background-size: 600px 600px;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(4px);
+      animation: confetti-move 60s linear infinite;
+    }
+    @keyframes confetti-move {
+      0% { background-position: 0 0,0 0,0 0,0 0; }
+      100% { background-position: 600px 600px,600px 600px,600px 600px,600px 600px; }
+    }
+
+    main {
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Gradient text for main heading */
+    .gradient-text {
+      background: linear-gradient(90deg, #f72585, #720026);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+    /* Countdown digits bounce on update */
+    .countdown-value {
+      display: inline-block;
+      will-change: transform;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      color: #db2777; /* Tailwind pink-600 */
+    }
+    .countdown-value.bounce {
+      animation: bounceDigit 0.4s ease forwards;
+    }
+    @keyframes bounceDigit {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.3); }
+      50% { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+    /* Gift card shadow & radius: improved style */
+    .gift-card {
+      border-radius: 1.5rem; /* 24px */
+      box-shadow:
+        0 8px 20px rgba(247, 37, 133, 0.2),
+        0 12px 40px rgba(114, 0, 38, 0.15);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      min-width: 14rem; /* 224px */
+      width: 100%;
+      max-width: 14rem;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3.5rem 2rem;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+    .gift-card > .number-circle {
+      font-size: 4.5rem;
+      font-weight: 800;
+      color: #db2777;
+      line-height: 1;
+      margin-bottom: 1rem;
+      width: 5.5rem;
+      height: 5.5rem;
+      background: linear-gradient(135deg, #f72585, #720026);
+      border-radius: 50%;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 6px 15px rgba(247, 37, 133, 0.4),
+        0 8px 24px rgba(114, 0, 38, 0.3);
+      user-select: none;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+    .gift-card:hover > .number-circle,
+    .gift-card:focus > .number-circle {
+      transform: scale(1.1);
+      outline: none;
+    }
+    .gift-card svg {
+      width: 5rem;
+      height: 5rem;
+      stroke: #db2777;
+      margin-bottom: 1.2rem;
+      flex-shrink: 0;
+      transition: stroke 0.3s ease;
+    }
+    .gift-card:hover svg,
+    .gift-card:focus svg {
+      stroke: #720026;
+      outline: none;
+    }
+    .gift-card span.title {
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: #720026;
+      user-select: none;
+    }
+    .gift-card:hover,
+    .gift-card:focus {
+      box-shadow:
+        0 20px 50px rgba(247, 37, 133, 0.4),
+        0 30px 70px rgba(114, 0, 38, 0.4);
+      transform: translateY(-8px) scale(1.05);
+      outline: none;
+      z-index: 2;
+      background: #fff0f6;
+    }
+    /* Modal backdrop and shadow */
+    .modal-overlay {
+      background-color: rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(6px) saturate(140%);
+      -webkit-backdrop-filter: blur(6px) saturate(140%);
+      transition: opacity 0.3s ease;
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal {
+      border-radius: 0.75rem;
+      max-width: 380px;
+      background: white;
+      padding: 2rem;
+      box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      user-select: text;
+      position: relative;
+    }
+    .modal h3 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #1f2937; /* Tailwind gray-800 */
+    }
+    .modal img {
+      max-width: 100%;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      user-select: none;
+    }
+    .modal p {
+      color: #4b5563; /* Tailwind gray-600 */
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 1.75rem;
+    }
+    .modal-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.75rem;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #6b7280; /* Tailwind gray-500 */
+      transition: color 0.3s ease;
+    }
+    .modal-close:hover,
+    .modal-close:focus {
+      color: #db2777;
+      outline: none;
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255 255 255 / 0.85);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      backdrop-filter: blur(4px);
+    }
+    .loading-overlay.active {
+      display: flex;
+    }
+    .lds-ring {
+      display: inline-block;
+      position: relative;
+      width: 64px;
+      height: 64px;
+    }
+    .lds-ring div {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 51px;
+      height: 51px;
+      margin: 6px;
+      border: 6px solid #db2777;
+      border-radius: 50%;
+      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: #db2777 transparent transparent transparent;
+    }
+    .lds-ring div:nth-child(1) {
+      animation-delay: -0.45s;
+    }
+    .lds-ring div:nth-child(2) {
+      animation-delay: -0.3s;
+    }
+    .lds-ring div:nth-child(3) {
+      animation-delay: -0.15s;
+    }
+    @keyframes lds-ring {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Gallery improved grid: mosaic style with distinct rows */
+    .gallery-grid {
+      display: grid;
+      max-width: 900px;
+      margin: 0 auto;
+      grid-template-columns: repeat(5, 1fr);
+      grid-auto-rows: 12rem;
+      gap: 1.5rem;
+    }
+    .gallery-grid img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 1.25rem;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08));
+      cursor: pointer;
+      transition: transform 0.3s ease, filter 0.3s ease;
+      user-select: none;
+    }
+    .gallery-grid img:hover,
+    .gallery-grid img:focus {
+      transform: scale(1.05);
+      filter: drop-shadow(0 4px 12px rgba(114, 0, 38, 0.25));
+      outline: none;
+    }
+    /* Mosaic pattern rows - distinct rows */
+    .line1-item1 { grid-column: span 3; grid-row: 1 / 2; }
+    .line1-item2 { grid-column: span 2; grid-row: 1 / 2; }
+    .line2-item1 { grid-column: span 2; grid-row: 2 / 3; }
+    .line2-item2 { grid-column: span 1; grid-row: 2 / 3; }
+    .line2-item3 { grid-column: span 2; grid-row: 2 / 3; }
+    .line3-item1 { grid-column: span 5; grid-row: 3 / 4; height: 18rem; }
+
+    /* Milestones timeline */
+    .timeline {
+      position: relative;
+      margin-left: 1rem;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 12px;
+      width: 4px;
+      height: 100%;
+      background: #f9a8d4; /* Tailwind pink-300 */
+      border-radius: 2px;
+      z-index: 0;
+    }
+    .milestone {
+      position: relative;
+      margin-bottom: 3rem;
+      padding-left: 3rem;
+      max-width: 600px;
+    }
+    .milestone:last-child {
+      margin-bottom: 0;
+    }
+    .milestone-dot {
+      position: absolute;
+      left: 0;
+      top: 0.6rem;
+      width: 24px;
+      height: 24px;
+      background-color: #db2777; /* Tailwind pink-600 */
+      border-radius: 50%;
+      box-shadow: 0 0 0 5px #ffecf7; /* Tailwind pink-50 highlight */
+      z-index: 1;
+    }
+    .milestone-date {
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: #9d174d; /* Tailwind pink-800 */
+      margin-bottom: 0.25rem;
+      user-select: text;
+    }
+    .milestone-title {
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: #6b7280; /* Tailwind gray-500 */
+      margin-bottom: 0.5rem;
+      user-select: text;
+    }
+    .milestone-description {
+      color: #4b5563; /* Tailwind gray-600 */
+      font-size: 1rem;
+      user-select: text;
+      line-height: 1.5;
+    }
+
+    /* Spotify-themed music playlist section */
+    #playlist {
+      background-color: #121212;
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      max-width: 700px;
+      margin: 20rem auto;
+      padding: 5rem 1.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.6);
+      text-align: center;
+      user-select: none;
+    }
+    #playlist h2 {
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(90deg, #1db954, #1ed760);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+    #playlist iframe {
+      width: 100%;
+      height: 380px;
+      border: none;
+      border-radius: 1rem;
+      box-shadow:
+        0 6px 20px rgba(29, 185, 84, 0.5);
+      transition: box-shadow 0.3s ease;
+    }
+    #playlist iframe:hover,
+    #playlist iframe:focus {
+      box-shadow:
+        0 12px 36px rgba(29, 185, 84, 0.75);
+      outline: none;
+    }
+  </style>
+</head>
+<body class="text-gray-700">
+  <header class="sticky top-0 bg-white z-30 border-b border-gray-200 shadow-sm">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#" class="text-3xl font-extrabold tracking-tight select-none gradient-text">Miki Birthday</a>
+      <ul class="flex gap-6 text-gray-600 text-sm font-semibold">
+        <li><a href="#countdown" class="hover:text-pink-600 transition">Countdown</a></li>
+        <li><a href="#choose-gift" class="hover:text-pink-600 transition">Choose Gift</a></li>
+        <li><a href="#playlist" class="hover:text-pink-600 transition">Music</a></li>
+        <li><a href="#gallery" class="hover:text-pink-600 transition">Gallery</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="max-w-6xl mx-auto px-6 pt-16 pb-28 space-y-32" role="main" tabindex="-1">
+    <!-- Countdown Section -->
+    <section id="countdown" aria-label="Birthday Countdown Timer" class="text-center select-none">
+      <h1 class="text-6xl font-extrabold tracking-tight mb-3 gradient-text leading-tight max-w-4xl mx-auto">Countdown to miki birthday</h1>
+      <p class="text-lg font-semibold text-pink-700 mb-12">Counting down the moments until her special day</p>
+      <div class="flex justify-center gap-16 text-pink-600 font-extrabold text-5xl tabular-nums">
+        <div aria-live="polite" class="bg-white rounded-3xl shadow-lg px-8 py-5 flex flex-col items-center w-24">
+          <span id="days" class="countdown-value leading-none">0</span>
+          <span class="text-sm uppercase tracking-widest text-pink-400 mt-1 select-text">Days</span>
+        </div>
+        <div aria-live="polite" class="bg-white rounded-3xl shadow-lg px-8 py-5 flex flex-col items-center w-24">
+          <span id="hours" class="countdown-value leading-none">0</span>
+          <span class="text-sm uppercase tracking-widest text-pink-400 mt-1 select-text">Hours</span>
+        </div>
+        <div aria-live="polite" class="bg-white rounded-3xl shadow-lg px-8 py-5 flex flex-col items-center w-24">
+          <span id="minutes" class="countdown-value leading-none">0</span>
+          <span class="text-sm uppercase tracking-widest text-pink-400 mt-1 select-text">Minutes</span>
+        </div>
+        <div aria-live="polite" class="bg-white rounded-3xl shadow-lg px-8 py-5 flex flex-col items-center w-24">
+          <span id="seconds" class="countdown-value leading-none">0</span>
+          <span class="text-sm uppercase tracking-widest text-pink-400 mt-1 select-text">Seconds</span>
+        </div>
+      </div>
+    </section>
+    <!-- Personalized Message Section -->
+    <section id="message" aria-label="Personalized Birthday Message" class="max-w-3xl mx-auto text-center px-4 sm:px-0 space-y-4">
+      <h2 class="text-4xl font-extrabold text-gray-900 select-none">A Special Message for You</h2>
+      <p class="text-gray-600 text-lg leading-relaxed select-text">
+        Every moment with you is a treasure. I can't wait to celebrate your special day and make more beautiful memories together.
+      </p>
+    </section>
+    <!-- Choose Your Gift Section -->
+    <section id="choose-gift" aria-label="Choose Your Gift" class="text-center space-y-8 max-w-4xl mx-auto">
+      <h2 class="text-4xl font-extrabold tracking-tight select-none text-pink-800">Choose your gift</h2>
+      <div class="flex justify-center gap-14">
+        <div tabindex="0" role="button" aria-haspopup="dialog" aria-controls="modal-gift1" class="gift-card focus:outline-none focus:ring-4 focus:ring-pink-300" data-gift="1">
+          <div class="number-circle">1</div>
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-current"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" /><path d="M12 12V2m4 6a4 4 0 1 0-8 0" /><path d="M2 12h20" /></svg>
+          <span class="title">Gift Box 1</span>
+        </div>
+        <div tabindex="0" role="button" aria-haspopup="dialog" aria-controls="modal-gift2" class="gift-card focus:outline-none focus:ring-4 focus:ring-pink-300" data-gift="2">
+          <div class="number-circle">2</div>
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-current"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" /><path d="M12 12V2m4 6a4 4 0 1 0-8 0" /><path d="M2 12h20" /></svg>
+          <span class="title">Gift Box 2</span>
+        </div>
+        <div tabindex="0" role="button" aria-haspopup="dialog" aria-controls="modal-gift3" class="gift-card focus:outline-none focus:ring-4 focus:ring-pink-300" data-gift="3">
+          <div class="number-circle">3</div>
+          <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-current"><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" /><path d="M12 12V2m4 6a4 4 0 1 0-8 0" /><path d="M2 12h20" /></svg>
+          <span class="title">Gift Box 3</span>
+        </div>
+      </div>
+    </section>
+    <!-- Music Playlist Embed Section (Spotify Inspired) -->
+    <section id="playlist" aria-label="Birthday Music Playlist" class="playlist-section">
+      <h2>Birthday Music Playlist</h2>
+      <iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?autoplay=1" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" allowfullscreen loading="lazy" title="Birthday Playlist"></iframe>
+    </section>
+    <!-- Photo Gallery Section (improved mosaic grid) -->
+    <section id="gallery" aria-label="Photo Gallery" class="max-w-6xl mx-auto px-4 md:px-0">
+      <h2 class="text-4xl font-extrabold tracking-tight mb-10 select-none text-pink-800 text-center">Photo Gallery</h2>
+      <div class="gallery-grid" role="list" >
+        <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Couple smiling together" class="line1-item1" role="listitem" loading="lazy" tabindex="0"/>
+        <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80" alt="Hand holding bouquet flowers" class="line1-item2" role="listitem" loading="lazy" tabindex="0"/>
+        <img src="https://images.unsplash.com/photo-1464375117522-1311f6f9b424?auto=format&fit=crop&w=800&q=80" alt="Couple holding hands at sunset" class="line2-item1" role="listitem" loading="lazy" tabindex="0"/>
+        <img src="https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&w=800&q=80" alt="Gift box with ribbon" class="line2-item2" role="listitem" loading="lazy" tabindex="0"/>
+        <img src="https://images.unsplash.com/photo-1493666438817-866a91353ca9?auto=format&fit=crop&w=800&q=80" alt="Romantic candlelight dinner" class="line2-item3" role="listitem" loading="lazy" tabindex="0"/>
+        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80" alt="Love letter closeup" class="line3-item1" role="listitem" loading="lazy" tabindex="0"/>
+      </div>
+    </section>
+  </main>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="loading-overlay" aria-hidden="true" aria-label="Loading">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+  </div>
+
+  <!-- Gift Modals -->
+  <div id="modal-gift1" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal1-title" tabindex="-1">
+    <div class="modal">
+      <button class="modal-close" aria-label="Close gift box 1 details">&times;</button>
+      <h3 id="modal1-title">Gift Box 1 Contents</h3>
+      <img src="https://images.unsplash.com/photo-1523926070041-6c172f095f9c?auto=format&fit=crop&w=400&q=80" alt="Bouquet of flowers" />
+      <p>A beautiful bouquet of her favorite flowers, fresh and fragrant to brighten her day.</p>
+    </div>
+  </div>
+  <div id="modal-gift2" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal2-title" tabindex="-1">
+    <div class="modal">
+      <button class="modal-close" aria-label="Close gift box 2 details">&times;</button>
+      <h3 id="modal2-title">Gift Box 2 Contents</h3>
+      <img src="https://images.unsplash.com/photo-1509395062183-67c5ad6faff9?auto=format&fit=crop&w=400&q=80" alt="Necklace with heart pendant" />
+      <p>A sparkling necklace with a heart-shaped pendant, a timeless symbol of love and affection.</p>
+    </div>
+  </div>
+  <div id="modal-gift3" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal3-title" tabindex="-1">
+    <div class="modal">
+      <button class="modal-close" aria-label="Close gift box 3 details">&times;</button>
+      <h3 id="modal3-title">Gift Box 3 Contents</h3>
+      <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=400&q=80" alt="Love letter closeup" />
+      <p>A hand-written love letter, heartfelt and sincere, expressing my deepest feelings for her.</p>
+    </div>
+  </div>
+
+  <script>
+    // Countdown code unchanged
+    function getNextBirthdayDate() {
+      const now = new Date();
+      let year = now.getFullYear();
+      const birthdayThisYear = new Date(year, 5, 28, 0, 0, 0); // Month is 0-based, so 5 = June
+      if (birthdayThisYear <= now) year++;
+      return new Date(year, 5, 28, 0, 0, 0);
+    }
+    const countdownElements = {
+      days: document.getElementById('days'),
+      hours: document.getElementById('hours'),
+      minutes: document.getElementById('minutes'),
+      seconds: document.getElementById('seconds'),
+    };
+    function animateDigit(element, newValue) {
+      if (element.textContent === newValue) return;
+      element.textContent = newValue;
+      element.classList.remove('bounce');
+      void element.offsetWidth;
+      element.classList.add('bounce');
+    }
+    function updateCountdown() {
+      const now = new Date();
+      const target = getNextBirthdayDate();
+      const diff = target - now;
+      if (diff <= 0) {
+        animateDigit(countdownElements.days, '0');
+        animateDigit(countdownElements.hours, '00');
+        animateDigit(countdownElements.minutes, '00');
+        animateDigit(countdownElements.seconds, '00');
+        clearInterval(countdownInterval);
+        return;
+      }
+      const secondsTotal = Math.floor(diff / 1000);
+      const days = Math.floor(secondsTotal / (3600 * 24));
+      const hours = Math.floor((secondsTotal % (3600 * 24)) / 3600);
+      const minutes = Math.floor((secondsTotal % 3600) / 60);
+      const seconds = secondsTotal % 60;
+      animateDigit(countdownElements.days, days.toString());
+      animateDigit(countdownElements.hours, hours.toString().padStart(2, '0'));
+      animateDigit(countdownElements.minutes, minutes.toString().padStart(2, '0'));
+      animateDigit(countdownElements.seconds, seconds.toString().padStart(2, '0'));
+    }
+    const countdownInterval = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Modal handling with loading overlay
+    const giftCards = document.querySelectorAll('.gift-card');
+    const modalOverlays = document.querySelectorAll('.modal-overlay');
+    const loadingOverlay = document.getElementById('loading-overlay');
+
+    function showLoading() {
+      loadingOverlay.classList.add('active');
+    }
+    function hideLoading() {
+      loadingOverlay.classList.remove('active');
+    }
+
+    function openModal(modal) {
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
+      modal.focus();
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(modal) {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    giftCards.forEach(card => {
+      card.addEventListener('click', () => {
+        showLoading();
+        setTimeout(() => {
+          hideLoading();
+          const giftId = card.getAttribute('aria-controls');
+          if (!giftId) return;
+          const modal = document.getElementById(giftId);
+          if (modal) {
+            openModal(modal);
+          }
+        }, 1000);
+      });
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+
+    modalOverlays.forEach(modal => {
+      const closeBtn = modal.querySelector('.modal-close');
+      closeBtn.addEventListener('click', () => closeModal(modal));
+      modal.addEventListener('click', e => {
+        if (e.target === modal) {
+          closeModal(modal);
+        }
+      });
+      modal.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+          closeModal(modal);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
